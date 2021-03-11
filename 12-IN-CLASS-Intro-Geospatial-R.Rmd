@@ -1,0 +1,196 @@
+# Geospatial data in R - Vector {#rgeospatial}
+
+The following activity is available as a template github repository at the following link:
+
+For more: <https://datacarpentry.org/r-raster-vector-geospatial/>
+
+Much of this is adapted from: <https://geocompr.robinlovelace.net/index.html> Chapter 8
+
+Load necessary packages and data (spData and spDataLarge are data packages)
+
+```{r, message=FALSE, warning=FALSE}
+#install.packages('spDataLarge', repos='https://nowosad.github.io/drat/',
+#type='source')
+
+library(tidyverse)
+library(sf)
+library(raster)
+library(dplyr)
+library(spData)
+library(spDataLarge)
+library(tmap)    # for static and interactive maps
+library(leaflet) # for interactive maps
+
+theme_set(theme_classic())
+```
+
+## Goals
+
+Our goals for this chapter are just to see some of the ways we can wrangle and plot vector spatial data using R. This is by no means the only way and is not an exhaustive demonstration of the packages loaded, but it'll get us started.
+
+First, we need to define raster and vector spatial data.
+
+Check out the images below for two examples of the same data represented as raster data or vector data.
+
+Vector: Points, lines, polygons, boundaries are crisp regardless of scale Raster: Grid of same sized cells, vales in cells, cell size = resolution (smaller cells, higher resolution)
+
+![Raster vs. Vector 1](images/raster vector1.png "Raster vs. Vector 1")
+
+![Raster vs. Vector 2](images/raster vector2.png "Raster vs. Vector 2")
+
+**Questions from these two images:**
+
+*What are the advantages/disadvantages of raster/vector for each?* Which is best to show on a map for each?  \*For elevation, which would be better for calculating slope? 
+
+So, today we are sticking to vector data, but then we will be deal primarily with raster elevation data.
+
+## Intro to tmap
+
+We are going to mape maps mostly with tmap. But there are several other options.
+
+Let's look at how tmap works. It uses the same syntax as ggplot: the grammar of graphics.
+
+First we want to set tmap to static map mode. This is what we would want if we were making maps for a manuscript or a paper. You can also make interactive maps with tmap, which we will show later.
+
+Then we will have a look at the us_states data from the data package we loaded above.
+
+*What extra information does the data have beyond a regular R object?* Play around with it, can you reference columns in the table the same way you would with a regular object?
+
+```{r}
+#mapke sure tmap is in static map mode
+
+
+#look at the us_states shapefile data
+
+
+```
+
+Let's make a map showing the us_states data. Each state has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the US with states filled in with a color.
+
+```{r}
+# Pass the us_states data to tmap and fill the polygons (states)
+ 
+```
+
+If we use tm_borders instead, it will just outline the states.
+
+```{r}
+# Add border layer to shape
+
+```
+
+Or, like with ggplot, we can add multiple geoms. Let's do fill AND outline.
+
+```{r}
+# Add fill and border layers to shape
+
+```
+
+We can save these objects to view or edit later just like a ggplot object. We will save the above map as *usa*.
+
+Then we can use several built in geometries in tmap to add a compass, scale, and title. Note the syntax for specifying the position of the objects. You could do this all in one statement too if you wanted.
+
+```{r}
+#Save basic map object as "usa"
+
+```
+
+Below is an example of how to edit the "symbology" of the map. In other words, we want to color each of the polygons depending on a variable. Here we make the states more blue if they have a higher population.
+
+The syntax below is basically (pseudo code):
+
+> Represent us_states as shapes +\
+> color the shapes based on total_pop_10, use 10 colors, use the Blues palette\
+> add a legend in the bottom right, add some space for the title, define the title, position the title\
+> add a compass at the bottom left\
+> add a scale bar at the bottom left\
+
+```{r}
+
+```
+
+## Data wrangling with tidyverse principles
+
+You can use the same techniques as with other data to change or filter the spatial data. Below we filter to show just Virginia and then just to show the southern region. Note when we looked at us_states above there is a column called NAME for the state names and REGION for the region name.
+
+```{r}
+
+```
+
+Here we filter to the southern region and also add text labels with tm_text.
+
+```{r}
+
+```
+
+In addition to filtering, we can use the data in the geospatial table to calculate additional parameters, just like with a normal object. Below we calculate growth by subtracting the 2010 population from the 2015 population, and percent growth but dividing 2015-2010 by population in 2010 and multiplying by 100.
+
+```{r}
+
+```
+
+Now we can plot our newly calculated data by controlling color with that new column name.
+
+```{r}
+
+```
+
+## Add non-spatial data to spatial data with a join
+
+We have been using us_states. There is another dataset called us_states_df that has even more data, but it is just a regular tibble, not a geospatial file.
+
+We need to attach data from us_states_df to the us_states geospatial file based on state name. How in the world will we do that?
+
+A JOIN!!
+
+In us_states the state names are in a column called *NAME* and in us_states_df they are in a column called *state*. So when we do the join, we need to tell R that these columns are the same and we want to use them to match the values. We will do a left join to accomplish this.
+
+To review joins, check out chapter \@ref(getdata)
+
+```{r}
+
+```
+
+And now we can plot this formerly non-spatial data on our map.
+
+```{r}
+
+```
+
+## Plot maps side by side
+
+Just like we can use facets in ggplot, we can use facets to show multiple maps. Below we show median income in 2010 and 2015 next to each other using tm_facets.
+
+```{r}
+
+```
+
+## Built in styles, like themes in ggplot
+
+We can use these styles with tm_style. Try "classic", "coblat", or "col_blind" below.
+
+```{r}
+
+```
+
+## Interactive Maps
+
+### tmap
+
+You can also generate maps that you can interact with, as opposed to static maps, that we have been using before. If you are generating a map for an app or webpage, this may be a good choice. But for a pdf report, the static maps are more appropriate.
+
+In tmap all you have to do is run tmap_mode("view") and it will create an interactive map with the exact same syntax! To switch back to a static map, run tmap_mode("plot")
+
+Also in this chunk we see how to add a basemap to a tmap object.
+
+```{r}
+
+```
+
+### Leaflet
+
+Leaflet is another way to make interactive maps. It's syntax is very different, as you can see below. But depending on what functionality you need, it could be a better choice.
+
+```{r}
+
+```
