@@ -14,7 +14,7 @@ Load necessary packages and data (spData and spDataLarge are data packages)
 
 library(tidyverse)
 library(sf)
-library(raster)
+library(raster) #change to terra (beware install issues type = "source" install gdal and proj)
 library(dplyr)
 library(spData)
 library(spDataLarge)
@@ -57,7 +57,7 @@ Then we will have a look at the us_states data from the data package we loaded a
 *What extra information does the data have beyond a regular R object?* Play around with it, can you reference columns in the table the same way you would with a regular object?
 
 ```{r}
-#mapke sure tmap is in static map mode
+#mape sure tmap is in static map mode
 
 
 #look at the us_states shapefile data
@@ -69,7 +69,7 @@ Let's make a map showing the us_states data. Each state has coordinates to draw 
 
 ```{r}
 # Pass the us_states data to tmap and fill the polygons (states)
- 
+
 ```
 
 If we use tm_borders instead, it will just outline the states.
@@ -107,6 +107,7 @@ The syntax below is basically (pseudo code):
 
 ```{r}
 
+
 ```
 
 ## Data wrangling with tidyverse principles
@@ -127,11 +128,13 @@ In addition to filtering, we can use the data in the geospatial table to calcula
 
 ```{r}
 
+
 ```
 
 Now we can plot our newly calculated data by controlling color with that new column name.
 
 ```{r}
+
 
 ```
 
@@ -148,12 +151,14 @@ In us_states the state names are in a column called *NAME* and in us_states_df t
 To review joins, check out chapter \@ref(getdata)
 
 ```{r}
+#this says: join us_states and us_states_df by using the NAME and state columns
 
 ```
 
 And now we can plot this formerly non-spatial data on our map.
 
 ```{r}
+#now the us_states_df columns are available for us to use when mapping
 
 ```
 
@@ -163,6 +168,7 @@ Just like we can use facets in ggplot, we can use facets to show multiple maps. 
 
 ```{r}
 
+
 ```
 
 ## Built in styles, like themes in ggplot
@@ -171,6 +177,7 @@ We can use these styles with tm_style. Try "classic", "coblat", or "col_blind" b
 
 ```{r}
 
+  
 ```
 
 ## Interactive Maps
@@ -192,5 +199,9 @@ Also in this chunk we see how to add a basemap to a tmap object.
 Leaflet is another way to make interactive maps. It's syntax is very different, as you can see below. But depending on what functionality you need, it could be a better choice.
 
 ```{r}
-
+leaflet(us_states) %>% 
+  addTiles() %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~colorQuantile("YlOrRd", total_pop_10)(total_pop_10))
 ```

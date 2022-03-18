@@ -14,7 +14,7 @@ Load necessary packages and data (spData and spDataLarge are data packages)
 
 library(tidyverse)
 library(sf)
-library(raster)
+library(raster) #change to terra (beware install issues type = "source" install gdal and proj)
 library(dplyr)
 library(spData)
 library(spDataLarge)
