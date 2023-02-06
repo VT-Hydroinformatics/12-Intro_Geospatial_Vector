@@ -1,23 +1,19 @@
 # Geospatial data in R - Vector {#rgeospatial}
 
-The following activity is available as a template github repository at the following link:
+The following activity is available as a template github repository at the following link: <https://github.com/VT-Hydroinformatics/12-Intro_Geospatial_Vector>
 
 For more: <https://datacarpentry.org/r-raster-vector-geospatial/>
 
 Much of this is adapted from: <https://geocompr.robinlovelace.net/index.html> Chapter 8
 
-Load necessary packages and data (spData and spDataLarge are data packages)
+This demo uses data from the CAMELS dataset (full ref below) <https://ral.ucar.edu/solutions/products/camels>
+
+A. Newman; K. Sampson; M. P. Clark; A. Bock; R. J. Viger; D. Blodgett, 2014. A large-sample watershed-scale hydrometeorological dataset for the contiguous USA. Boulder, CO: UCAR/NCAR. https://dx.doi.org/10.5065/D6MW2F4D
+
 
 ```{r, message=FALSE, warning=FALSE}
-#install.packages('spDataLarge', repos='https://nowosad.github.io/drat/',
-#type='source')
-
 library(tidyverse)
 library(sf)
-library(raster) #change to terra (beware install issues type = "source" install gdal and proj)
-library(dplyr)
-library(spData)
-library(spDataLarge)
 library(tmap)    # for static and interactive maps
 library(leaflet) # for interactive maps
 
@@ -46,82 +42,114 @@ So, today we are sticking to vector data, but then we will be deal primarily wit
 
 ## Intro to tmap
 
-We are going to mape maps mostly with tmap. But there are several other options.
+We are going to make maps mostly with tmap. But there are several other options (ggplot, leaflet, etc).
 
 Let's look at how tmap works. It uses the same syntax as ggplot: the grammar of graphics.
 
-First we want to set tmap to static map mode. This is what we would want if we were making maps for a manuscript or a paper. You can also make interactive maps with tmap, which we will show later.
+First we want to set tmap to static map mode. This is what we would want if we were making maps for a manuscript or slides. You can also make interactive maps with tmap, which we will show later. We will also set the check.and.fix option in tmap_options to TRUE, we need to do this for the data we are using, but it isn't always necessary.
 
-Then we will have a look at the us_states data from the data package we loaded above.
+Second, we will read in our data. We'll read in the "smallerws" shapefile from the CAMELS dataset and another shapefile of the outline of US states. To read in the shapefiles we will use st_read() from the sf package.
+
+Note that each of these shapefiles is in a separate folder and contains several files. You must have all of those files for the shapefile to work. *yes: "A shapefile" is actually several files. Silly? Maybe. The cause of much confusion when emailing someone "a shapefile"? Definitely.
+
+Finally we will read in a csv called gauge information that has some extra info we will join to the watershed shapefile later. 
+
+Once that is all done, we will look at the watershed data to see what is available in the shapefile attribute table.
 
 *What extra information does the data have beyond a regular R object?* Play around with it, can you reference columns in the table the same way you would with a regular object?
 
 ```{r}
-#mape sure tmap is in static map mode
+#make sure tmap is in static map mode
 tmap_mode("plot")
 
-#look at the us_states shapefile data
-head(us_states)
+#the CAMELS shapefile throws an error about having 
+#invalid polygons, this line allows it to plot
+tmap_options(check.and.fix = TRUE)
 
+#Read shapefiles
+watersheds <- st_read("small_ws/smallerws.shp")
+states <- st_read("cb_2018_us_state_20m/cb_2018_us_state_20m.shp")
+
+gageinfo <- read_csv("gauge information.csv")
+
+#look at the watersheds shapefile data
+head(watersheds)
 ```
 
-Let's make a map showing the us_states data. Each state has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the US with states filled in with a color.
+Let's make a map showing the watersheds data. Each watershed has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the watersheds filled in with a color.
 
 ```{r}
-# Pass the us_states data to tmap and fill the polygons (states)
-tm_shape(us_states) +
-  tm_fill() 
+# Pass the watershed data to tmap and fill the polygons 
+tm_shape(watersheds) +
+  tm_fill()
 ```
 
-If we use tm_borders instead, it will just outline the states.
-
+If we use tm_borders instead, it will just outline the watersheds.
 ```{r}
 # Add border layer to shape
-tm_shape(us_states) +
-  tm_borders() 
+tm_shape(watersheds) +
+  tm_borders()
+```
+That's fun, and maybe you can guess what country we are in based on the distribution of watersheds, but it would be better to show some geopolitical boundaries to get a sense of where we are. 
+
+To do this, we will use a second tm_shape and show the states data we read in on the plot as well. Just like in ggplot, you can use multiple tm_ functions to show multiple datsets on the same map.
+```{r}
+# Add border layer to shape
+tm_shape(watersheds) +
+  tm_fill() +
+  tm_shape(states)+
+  tm_borders()
 ```
 
-Or, like with ggplot, we can add multiple geoms. Let's do fill AND outline.
+You can also show the SAME data with multiple geoms. Let's add tm_borders under the watershed portion of the map and before the states portion so we get fill and borders on out watersheds.
 
 ```{r}
 # Add fill and border layers to shape
-tm_shape(us_states) +
+tm_shape(watersheds) +
   tm_fill() +
+  tm_borders()+
+  tm_shape(states)+
   tm_borders()
 ```
 
-We can save these objects to view or edit later just like a ggplot object. We will save the above map as *usa*.
+Okay, this is starting to look like a map! But we need to add elements to make it better.
 
-Then we can use several built in geometries in tmap to add a compass, scale, and title. Note the syntax for specifying the position of the objects. You could do this all in one statement too if you wanted.
+We coudl do this all in one statement, but you can also save your existing map as a kind of "basemap" and then add to it later, just like with a ggplot object. We will save the above map as *usa*.
+
+Then we can use several built in geometries in tmap to add a compass, scale, and title. Note the syntax for specifying the position of the objects. Again, you could do this all in one statement too if you wanted.
 
 ```{r}
 #Save basic map object as "usa"
-usa <- tm_shape(us_states) +
-  tm_fill() +
+usa <- tm_shape(watersheds) +
+  tm_fill(col = "lightblue")+
+  tm_shape(states)+
   tm_borders()
-
+   
 usa + 
   tm_compass(type = "8star", position = c("right", "bottom")) +
   tm_scale_bar(position = c("left", "bottom"))+
-  tm_layout(title = "United States", title.position = c("right", "TOP"))
+  tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
 ```
 
-Below is an example of how to edit the "symbology" of the map. In other words, we want to color each of the polygons depending on a variable. Here we make the states more blue if they have a higher population.
+Below is an example of how to edit the "symbology" of the map. In other words, we want to color each of the polygons depending on a variable. Here we make the watersheds darker blue if they have a higher elevation.
 
 The syntax below is basically (pseudo code):
 
-> Represent us_states as shapes +\
-> color the shapes based on total_pop_10, use 10 colors, use the Blues palette\
+> Represent watersheds as shapes +\
+> color the shapes based on elev_mean, use 10 colors, use the Blues palette\
 > add a legend in the bottom right, add some space for the title, define the title, position the title\
 > add a compass at the bottom left\
 > add a scale bar at the bottom left\
 
 ```{r}
-tm_shape(us_states) + 
-  tm_polygons(col = "total_pop_10", n = 10, palette = "Blues")+
+tm_shape(watersheds) + 
+  tm_fill(col = "elev_mean", n = 10, palette = "Blues")+
+  tm_borders(lwd = 0.2)+
+  tm_shape(states)+
+  tm_borders()+
   tm_layout(legend.position = c("right", "bottom"), 
             inner.margins = 0.1,
-            title = "United States Population in 2010", 
+            title = "Mean Elevation", 
             title.position = c("center", "TOP"))+
   tm_compass(type = "8star", position = c("left", "bottom")) +
   tm_scale_bar(position = c("left", "bottom"))
@@ -130,101 +158,142 @@ tm_shape(us_states) +
 
 ## Data wrangling with tidyverse principles
 
-You can use the same techniques as with other data to change or filter the spatial data. Below we filter to show just Virginia and then just to show the southern region. Note when we looked at us_states above there is a column called NAME for the state names and REGION for the region name.
+You can use the same techniques as with other data to change or filter the spatial data. Below we filter to show just watershed number 3164000, which will be in quotes because the column is a character datatype. Note when we looked at the watersheds object above there is a column called hru_id for the watershed ids.
 
 ```{r}
-us_states %>% filter(NAME == "Virginia") %>%
+watersheds %>% filter(hru_id == "3164000") %>%
   tm_shape() +
   tm_fill() +
   tm_borders() 
 ```
+## Add non-spatial data to spatial data with a join
 
-Here we filter to the southern region and also add text labels with tm_text.
+We have been using thew watersheds shapefile. The other dataset we read in "gageinfo" has more data, but it is just a regular tibble, not a geospatial file.
+
+We need to attach data from gageinfo object to the watersheds geospatial object based on watershed ID. How in the world will we do that?
+
+A JOIN!!
+
+In watersheds shapefile the watershed ids are in a column called *hru_id* and in gageinfo tibble they are in a column called *GAGE_ID*. So when we do the join, we need to tell R that these columns are the same and we want to use them to match the values. We will do a left join to accomplish this.
+
+BUT. TWIST! 
+
+Let's look at the first value in hru_id in watersheds: "1013500"
+Now the same one in GAGE_ID in gageinfo: "01013500"
+
+They're both the same IDs, but one has a leading zero. And because they are character format, "1013500" does not equal "01013500". We can address this a couple of ways, but the best is probably to keep them as characters, but add a leading 0 to the hru_id column.
+
+We will do this by creating a new column with a mutate and using the paste0() function to add a leading 0. To make the join easier, we will also give this new column the same name as in the gageinfo tibble: "GAGE_ID".
+
+To review joins, check out chapter \@ref(getdata)
 
 ```{r}
-us_states %>% filter(REGION == "South") %>%
+#add leading 0 to hru_id column and save it as GAGE_ID
+watersheds <- watersheds %>%
+  mutate(GAGE_ID = paste0("0", hru_id))
+
+#join watersheds and gageinfo using the GAGE_ID column as the key
+watersheds_info <- watersheds %>%
+  left_join(gageinfo, by = "GAGE_ID")
+
+head(watersheds_info)
+```
+
+And now we can plot this formerly non-spatial data on our map.
+
+In this case, we can now add the name of the watershed to the map rather than the number.
+
+```{r}
+#now the gageinfo columns are available for us to use when mapping
+watersheds_info %>% filter(hru_id == "3164000") %>%
   tm_shape() +
   tm_fill() +
   tm_borders() +
-  tm_text("NAME", size = 0.7)
+  tm_text("GAGE_NAME", size = 1) 
 ```
+We can also subset vector data to create new datasets or plot. Below we will use filter statements to grab all the polygons in Virginia from the watersheds shapefile and then the Virginia state outline from the states shapefile.
 
-In addition to filtering, we can use the data in the geospatial table to calculate additional parameters, just like with a normal object. Below we calculate growth by subtracting the 2010 population from the 2015 population, and percent growth but dividing 2015-2010 by population in 2010 and multiplying by 100.
+The method we will use for getting the Virginia watersheds is a little new. We are going to use the grepl() function to grab any gages that include the text ", VA" since there isn't a state column, but the watershed names include the state.
+
+Why are we doing ", VA" and not just "VA"? Good question!
+
+", VA" will most likely only show up in gage names that are in Virginia because they'll be in the format "Gage name, VA". If we just say "VA" we might get some gages that have "VA" as part of their name but are not in Virginia.
+
+Once we successfully filter to Virginia, we will then make a nice map of the CAMELS watersheds in Virginia!
 
 ```{r}
-us_states <- us_states %>% 
-  mutate(growth = total_pop_15 - total_pop_10) %>%
-  mutate(growthPer = ((total_pop_15-total_pop_10)/total_pop_10) * 100)
+va_watersheds <- filter(watersheds_info, grepl(", VA", GAGE_NAME))
+va_outline <- filter(states, NAME == "Virginia")
 
-head(us_states)
+va_outline %>%
+  tm_shape() +
+  tm_borders() + 
+  tm_shape(va_watersheds) +
+  tm_fill() +
+  tm_borders() +
+  tm_layout(inner.margins = 0.1,
+            title = "VA CAMELS Watersheds", 
+            title.position = c("left", "TOP"))+
+  tm_compass(type = "8star", position = c("right", "top")) +
+  tm_scale_bar(position = c("left", "top"))
+```
+
+In addition to filtering, we can use the data in the attribute table to calculate additional parameters, just like with a normal object. Below we calculate the ratio of Area to Perimeter by changing the perimeter datatype to numeric and then dividing area by perimeter.
+
+```{r}
+va_watersheds <- va_watersheds %>% 
+  mutate(PerimeterNum = as.numeric(Perimeter),
+         Area_Perimeter = AREA / PerimeterNum) 
+
+head(va_watersheds)
 
 ```
 
 Now we can plot our newly calculated data by controlling color with that new column name.
 
 ```{r}
-tm_shape(us_states) + 
-  tm_polygons(col = "growthPer", n = 7, 
-              palette = "Blues", title = "% of 2010 Pop")+ #do growth and growth per
-  tm_layout(legend.position = c("right", "bottom"), 
-            inner.margins = 0.1,
-            title = "United States Population Growth 2010-2015", 
-            title.position = c("center", "TOP"))+
-  tm_compass(type = "8star", position = c("left", "bottom")) +
-  tm_scale_bar(position = c("left", "bottom"))
-
-```
-
-## Add non-spatial data to spatial data with a join
-
-We have been using us_states. There is another dataset called us_states_df that has even more data, but it is just a regular tibble, not a geospatial file.
-
-We need to attach data from us_states_df to the us_states geospatial file based on state name. How in the world will we do that?
-
-A JOIN!!
-
-In us_states the state names are in a column called *NAME* and in us_states_df they are in a column called *state*. So when we do the join, we need to tell R that these columns are the same and we want to use them to match the values. We will do a left join to accomplish this.
-
-To review joins, check out chapter \@ref(getdata)
-
-```{r}
-#this says: join us_states and us_states_df by using the NAME and state columns
-st_income <- left_join(us_states, us_states_df, by = c("NAME" = "state"))
-
-head(st_income)
-```
-
-And now we can plot this formerly non-spatial data on our map.
-
-```{r}
-#now the us_states_df columns are available for us to use when mapping
-tm_shape(st_income) + 
-  tm_polygons(col = "median_income_10", n = 7)+ 
-  tm_compass(type = "8star", position = c("right", "bottom")) +
+va_outline %>%
+  tm_shape() +
+  tm_borders() + 
+  tm_shape(va_watersheds) +
+  tm_fill(col = "Area_Perimeter", n = 10, palette = "Reds") +
+  tm_borders()+
+  tm_layout(inner.margins = 0.12,
+            title = "VA CAMELS Watersheds", 
+            title.position = c("left", "TOP"))+
+  tm_compass(type = "8star", position = c("right", "top")) +
   tm_scale_bar(position = c("right", "bottom"))
 ```
 
 ## Plot maps side by side
 
-Just like we can use facets in ggplot, we can use facets to show multiple maps. Below we show median income in 2010 and 2015 next to each other using tm_facets.
+Just like we can use facets in ggplot, we can use facets to show multiple maps. Below we color our map by AREA and elev_mean and put them next to each other using tm_facets.
 
 ```{r}
-facets = c("median_income_10", "median_income_15")
+facets = c("AREA", "elev_mean")
 
-tm_shape(st_income) + 
+tm_shape(va_watersheds) + 
   tm_polygons(facets) + 
-  tm_facets(ncol = 1, sync = TRUE)
+  tm_facets(ncol = 2, sync = FALSE)
 
 ```
 
 ## Built in styles, like themes in ggplot
 
-We can use these styles with tm_style. Try "classic", "coblat", or "col_blind" below.
+Tmap also has built in styles, which are like themes in ggplot. We can use these styles with tm_style. Try "classic", "coblat", or "col_blind" below.
 
 ```{r}
-tm_shape(us_states)+
-  tm_polygons(col = "growthPer", n = 7, 
-              palette = "Blues", title = "% of 2010 Pop")+ #do growth and growth per
+va_outline %>%
+  tm_shape() +
+  tm_borders() + 
+  tm_shape(va_watersheds) +
+  tm_fill(col = "Area_Perimeter", n = 10, palette = "Reds") +
+  tm_borders()+
+  tm_layout(inner.margins = 0.12,
+            title = "VA CAMELS Watersheds", 
+            title.position = c("left", "TOP"))+
+  tm_compass(type = "8star", position = c("right", "top")) +
+  tm_scale_bar(position = c("right", "bottom"))+
   tm_style("classic") #try cobalt, bw, col_blind
   
 ```
@@ -237,23 +306,19 @@ You can also generate maps that you can interact with, as opposed to static maps
 
 In tmap all you have to do is run tmap_mode("view") and it will create an interactive map with the exact same syntax! To switch back to a static map, run tmap_mode("plot")
 
-Also in this chunk we see how to add a basemap to a tmap object.
+Also in this chunk we see how to add a basemap to a tmap object, using tm_basemap.
 
 ```{r}
 tmap_mode("view")
 
-popgrowth <- tm_shape(us_states) + 
-  tm_polygons(col = "growthPer", n = 7, 
-              palette = "Blues", title = "% of 2010 Pop",
-              alpha = 0.7)+ #mess with alpha
-  tm_layout(legend.position = c("right", "bottom"), 
-            inner.margins = 0.1,
-            title = "United States Population Growth 2010-2015", 
-            title.position = c("center", "TOP"))+
-  tm_compass(type = "8star", position = c("left", "bottom")) +
-  tm_scale_bar(position = c("left", "bottom"))
+usa <- tm_shape(watersheds_info) +
+  tm_fill(col = "lightblue", alpha = 0.3)+
+  tm_borders()+
+  tm_shape(states)+
+  tm_borders() +
+  tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
 
-popgrowth + tm_basemap(server = "OpenTopoMap")
+usa + tm_basemap(server = "OpenTopoMap")
 ```
 
 ### Leaflet
@@ -261,9 +326,9 @@ popgrowth + tm_basemap(server = "OpenTopoMap")
 Leaflet is another way to make interactive maps. It's syntax is very different, as you can see below. But depending on what functionality you need, it could be a better choice.
 
 ```{r}
-leaflet(us_states) %>% 
+leaflet(watersheds_info) %>% 
   addTiles() %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
-    fillColor = ~colorQuantile("YlOrRd", total_pop_10)(total_pop_10))
+    fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
 ```
