@@ -1,3 +1,10 @@
+---
+title: "12 - Intro Geospatial - Vector"
+format:
+  html: 
+    self-contained: true
+---
+
 # Geospatial data in R - Vector {#rgeospatial}
 
 The following activity is available as a template github repository at the following link: <https://github.com/VT-Hydroinformatics/12-Intro_Geospatial_Vector>
@@ -60,56 +67,44 @@ Once that is all done, we will look at the watershed data to see what is availab
 
 ```{r}
 #make sure tmap is in static map mode
-tmap_mode("plot")
+
 
 #the CAMELS shapefile throws an error about having 
 #invalid polygons, this line allows it to plot
-tmap_options(check.and.fix = TRUE)
+
 
 #Read shapefiles
-watersheds <- st_read("small_ws/smallerws.shp")
-states <- st_read("cb_2018_us_state_20m/cb_2018_us_state_20m.shp")
 
-gageinfo <- read_csv("gauge information.csv")
 
 #look at the watersheds shapefile data
-head(watersheds)
+
 ```
 
 Let's make a map showing the watersheds data. Each watershed has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the watersheds filled in with a color.
 
 ```{r}
 # Pass the watershed data to tmap and fill the polygons 
-tm_shape(watersheds) +
-  tm_fill()
+
 ```
 
 If we use tm_borders instead, it will just outline the watersheds.
 ```{r}
 # Add border layer to shape
-tm_shape(watersheds) +
-  tm_borders()
+
 ```
 That's fun, and maybe you can guess what country we are in based on the distribution of watersheds, but it would be better to show some geopolitical boundaries to get a sense of where we are. 
 
 To do this, we will use a second tm_shape and show the states data we read in on the plot as well. Just like in ggplot, you can use multiple tm_ functions to show multiple datsets on the same map.
 ```{r}
 # Add border layer to shape
-tm_shape(watersheds) +
-  tm_fill() +
-  tm_shape(states)+
-  tm_borders()
+
 ```
 
 You can also show the SAME data with multiple geoms. Let's add tm_borders under the watershed portion of the map and before the states portion so we get fill and borders on out watersheds.
 
 ```{r}
 # Add fill and border layers to shape
-tm_shape(watersheds) +
-  tm_fill() +
-  tm_borders()+
-  tm_shape(states)+
-  tm_borders()
+
 ```
 
 Okay, this is starting to look like a map! But we need to add elements to make it better.
@@ -120,15 +115,7 @@ Then we can use several built in geometries in tmap to add a compass, scale, and
 
 ```{r}
 #Save basic map object as "usa"
-usa <- tm_shape(watersheds) +
-  tm_fill(col = "lightblue")+
-  tm_shape(states)+
-  tm_borders()
-   
-usa + 
-  tm_compass(type = "8star", position = c("right", "bottom")) +
-  tm_scale_bar(position = c("left", "bottom"))+
-  tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
+
 ```
 
 Below is an example of how to edit the "symbology" of the map. In other words, we want to color each of the polygons depending on a variable. Here we make the watersheds darker blue if they have a higher elevation.
@@ -142,17 +129,7 @@ The syntax below is basically (pseudo code):
 > add a scale bar at the bottom left\
 
 ```{r}
-tm_shape(watersheds) + 
-  tm_fill(col = "elev_mean", n = 10, palette = "Blues")+
-  tm_borders(lwd = 0.2)+
-  tm_shape(states)+
-  tm_borders()+
-  tm_layout(legend.position = c("right", "bottom"), 
-            inner.margins = 0.1,
-            title = "Mean Elevation", 
-            title.position = c("center", "TOP"))+
-  tm_compass(type = "8star", position = c("left", "bottom")) +
-  tm_scale_bar(position = c("left", "bottom"))
+
 
 ```
 
@@ -161,10 +138,7 @@ tm_shape(watersheds) +
 You can use the same techniques as with other data to change or filter the spatial data. Below we filter to show just watershed number 3164000, which will be in quotes because the column is a character datatype. Note when we looked at the watersheds object above there is a column called hru_id for the watershed ids.
 
 ```{r}
-watersheds %>% filter(hru_id == "3164000") %>%
-  tm_shape() +
-  tm_fill() +
-  tm_borders() 
+ 
 ```
 ## Add non-spatial data to spatial data with a join
 
@@ -189,14 +163,10 @@ To review joins, check out chapter \@ref(getdata)
 
 ```{r}
 #add leading 0 to hru_id column and save it as GAGE_ID
-watersheds <- watersheds %>%
-  mutate(GAGE_ID = paste0("0", hru_id))
+
 
 #join watersheds and gageinfo using the GAGE_ID column as the key
-watersheds_info <- watersheds %>%
-  left_join(gageinfo, by = "GAGE_ID")
 
-head(watersheds_info)
 ```
 
 And now we can plot this formerly non-spatial data on our map.
@@ -205,11 +175,7 @@ In this case, we can now add the name of the watershed to the map rather than th
 
 ```{r}
 #now the gageinfo columns are available for us to use when mapping
-watersheds_info %>% filter(hru_id == "3164000") %>%
-  tm_shape() +
-  tm_fill() +
-  tm_borders() +
-  tm_text("GAGE_NAME", size = 1) 
+
 ```
 We can also subset vector data to create new datasets or plot. Below we will use filter statements to grab all the polygons in Virginia from the watersheds shapefile and then the Virginia state outline from the states shapefile.
 
@@ -222,47 +188,20 @@ Why are we doing ", VA" and not just "VA"? Good question!
 Once we successfully filter to Virginia, we will then make a nice map of the CAMELS watersheds in Virginia!
 
 ```{r}
-va_watersheds <- filter(watersheds_info, grepl(", VA", GAGE_NAME))
-va_outline <- filter(states, NAME == "Virginia")
 
-va_outline %>%
-  tm_shape() +
-  tm_borders() + 
-  tm_shape(va_watersheds) +
-  tm_fill() +
-  tm_borders() +
-  tm_layout(inner.margins = 0.1,
-            title = "VA CAMELS Watersheds", 
-            title.position = c("left", "TOP"))+
-  tm_compass(type = "8star", position = c("right", "top")) +
-  tm_scale_bar(position = c("left", "top"))
 ```
 
 In addition to filtering, we can use the data in the attribute table to calculate additional parameters, just like with a normal object. Below we calculate the ratio of Area to Perimeter by changing the perimeter datatype to numeric and then dividing area by perimeter.
 
 ```{r}
-va_watersheds <- va_watersheds %>% 
-  mutate(PerimeterNum = as.numeric(Perimeter),
-         Area_Perimeter = AREA / PerimeterNum) 
 
-head(va_watersheds)
 
 ```
 
 Now we can plot our newly calculated data by controlling color with that new column name.
 
 ```{r}
-va_outline %>%
-  tm_shape() +
-  tm_borders() + 
-  tm_shape(va_watersheds) +
-  tm_fill(col = "Area_Perimeter", n = 10, palette = "Reds") +
-  tm_borders()+
-  tm_layout(inner.margins = 0.12,
-            title = "VA CAMELS Watersheds", 
-            title.position = c("left", "TOP"))+
-  tm_compass(type = "8star", position = c("right", "top")) +
-  tm_scale_bar(position = c("right", "bottom"))
+
 ```
 
 ## Plot maps side by side
@@ -270,11 +209,7 @@ va_outline %>%
 Just like we can use facets in ggplot, we can use facets to show multiple maps. Below we color our map by AREA and elev_mean and put them next to each other using tm_facets.
 
 ```{r}
-facets = c("AREA", "elev_mean")
 
-tm_shape(va_watersheds) + 
-  tm_polygons(facets) + 
-  tm_facets(ncol = 2, sync = FALSE)
 
 ```
 
@@ -283,18 +218,7 @@ tm_shape(va_watersheds) +
 Tmap also has built in styles, which are like themes in ggplot. We can use these styles with tm_style. Try "classic", "coblat", or "col_blind" below.
 
 ```{r}
-va_outline %>%
-  tm_shape() +
-  tm_borders() + 
-  tm_shape(va_watersheds) +
-  tm_fill(col = "Area_Perimeter", n = 10, palette = "Reds") +
-  tm_borders()+
-  tm_layout(inner.margins = 0.12,
-            title = "VA CAMELS Watersheds", 
-            title.position = c("left", "TOP"))+
-  tm_compass(type = "8star", position = c("right", "top")) +
-  tm_scale_bar(position = c("right", "bottom"))+
-  tm_style("classic") #try cobalt, bw, col_blind
+
   
 ```
 
@@ -309,16 +233,7 @@ In tmap all you have to do is run tmap_mode("view") and it will create an intera
 Also in this chunk we see how to add a basemap to a tmap object, using tm_basemap.
 
 ```{r}
-tmap_mode("view")
 
-usa <- tm_shape(watersheds_info) +
-  tm_fill(col = "lightblue", alpha = 0.3)+
-  tm_borders()+
-  tm_shape(states)+
-  tm_borders() +
-  tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
-
-usa + tm_basemap(server = "OpenTopoMap")
 ```
 
 ### Leaflet
