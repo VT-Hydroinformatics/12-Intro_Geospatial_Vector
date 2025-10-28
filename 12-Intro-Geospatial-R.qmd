@@ -71,7 +71,7 @@ tmap_mode("plot")
 
 #the CAMELS shapefile throws an error about having 
 #invalid polygons, this line allows it to plot
-tmap_options(check.and.fix = TRUE)
+tm_check_fix()
 
 #Read shapefiles
 watersheds <- st_read("small_ws/smallerws.shp")
