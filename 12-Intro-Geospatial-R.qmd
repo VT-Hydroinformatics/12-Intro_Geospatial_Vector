@@ -1,8 +1,24 @@
 ---
-title: "12 - Intro Geospatial - Vector"
+title: "Chapter 12: Intro Geospatial - Vector"
+date: today
+github: https://github.com/VT-Hydroinformatics/12-Intro_Geospatial_Vector
+author:
+  - name: JP Gannon
+    orcid: 0000-0002-4595-3214
+    github: jpgannon
+    url: https://jpgannon.github.io/
+    affiliation: 
+      - name: Virginia Tech
+        url: https://www.vt.edu/
 format:
   html: 
     self-contained: true
+  ipynb:
+      nb-frontmatter: true
+jupyter: 
+  kernel: ir
+execute: 
+  enabled: true
 ---
 
 
@@ -37,9 +53,17 @@ Check out the images below for two examples of the same data represented as rast
 
 Vector: Points, lines, polygons, boundaries are crisp regardless of scale Raster: Grid of same sized cells, vales in cells, cell size = resolution (smaller cells, higher resolution)
 
-![Raster vs. Vector 1](images/raster%20vector1.png "Raster vs. Vector 1")
+::: {#fig-raster-vector1 .captioned-figure}
+<img src="./images/raster%20vector1.png" alt="Raster vs. Vector 1" width="1000">
 
-![Raster vs. Vector 2](images/raster%20vector2.png "Raster vs. Vector 2")
+Raster vs. Vector 1
+:::
+
+::: {#fig-raster-vector2 .captioned-figure}
+<img src="./images/raster%20vector2.png" alt="Raster vs. Vector 2" width="1000">
+
+Raster vs. Vector 2
+:::
 
 **Questions from these two images:**
 
@@ -80,7 +104,7 @@ states <- st_read("cb_2018_us_state_20m/cb_2018_us_state_20m.shp")
 gageinfo <- read_csv("gauge information.csv")
 
 #look at the watersheds shapefile data
-head(watersheds)
+print(head(watersheds))
 ```
 
 Let's make a map showing the watersheds data. Each watershed has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the watersheds filled in with a color.
@@ -206,7 +230,7 @@ watersheds <- watersheds |>
 watersheds_info <- watersheds |>
   left_join(gageinfo, by = "GAGE_ID")
 
-head(watersheds_info)
+print(head(watersheds_info))
 ```
 
 And now we can plot this formerly non-spatial data on our map.
@@ -256,7 +280,7 @@ va_watersheds <- va_watersheds |>
   mutate(PerimeterNum = as.numeric(Perimeter),
          Area_Perimeter = AREA / PerimeterNum) 
 
-head(va_watersheds)
+print(head(va_watersheds))
 
 ```
 
