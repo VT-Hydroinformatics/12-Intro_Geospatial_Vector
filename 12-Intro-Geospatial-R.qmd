@@ -367,14 +367,16 @@ usa_tmap_interactive <- usa + tm_basemap(server = "OpenTopoMap")
 # Save the interactive map to a temporary HTML file
 usa_tmap_interactive_fp <- "images/tmap_interactive.html"
 tmap_save(usa_tmap_interactive, filename = usa_tmap_interactive_fp)
+```
 
-# Display the saved HTML file content in the notebook output
-# This method reads the HTML file and prints its content, allowing the notebook
-# environment to render the interactive map.
-library(htmltools)
-includeHTML(usa_tmap_interactive_fp)
-
-
+```{=html}
+<iframe 
+    src="images/tmap_interactive.html" 
+    width="100%" 
+    height="450" 
+    frameborder="0" 
+    style="border: none;">
+</iframe
 ```
 
 ### Leaflet
@@ -394,8 +396,14 @@ library(htmlwidgets)
 leaflet_map_fp <- "images/leaflet_interactive.html"
 htmlwidgets::saveWidget(leaflet_map, file = leaflet_map_fp, selfcontained = TRUE)
 
-# Display the saved HTML file content in the notebook output
-# This method reads the HTML file and prints its content, allowing the notebook
-# environment to render the interactive map.
-includeHTML(leaflet_map_fp)
+```
+
+```{=html}
+<iframe 
+    src="images/leaflet_interactive.html" 
+    width="100%" 
+    height="450" 
+    frameborder="0" 
+    style="border: none;">
+</iframe
 ```
