@@ -374,9 +374,9 @@ usa + tm_basemap(server = "OpenTopoMap") |>
 ```
 
 ::: {#fig-tmap-plot .captioned-figure}
-<img src="./images/tmap_static.png" alt="Tmap plot" width="1000">
+<img src="./images/tmap.png" alt="Tmap plot" width="1000">
 
-Screenshot of Tmap plot. View the **[interactive map here](./images/leaflet.html)**. 
+Screenshot of Tmap plot. View the **[interactive map here](./images/tmap.html)**. 
 :::
 
 
