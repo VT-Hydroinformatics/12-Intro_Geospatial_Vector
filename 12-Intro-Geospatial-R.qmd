@@ -369,14 +369,8 @@ usa_tmap_interactive_fp <- "images/tmap_interactive.html"
 tmap_save(usa_tmap_interactive, filename = usa_tmap_interactive_fp)
 ```
 
-```{=html}
-<iframe 
-    src="images/tmap_interactive.html" 
-    width="100%" 
-    height="450" 
-    frameborder="0" 
-    style="border: none;">
-</iframe
+```{raw} html
+:file: images/tmap_interactive.html
 ```
 
 ### Leaflet
@@ -398,12 +392,6 @@ htmlwidgets::saveWidget(leaflet_map, file = leaflet_map_fp, selfcontained = TRUE
 
 ```
 
-```{=html}
-<iframe 
-    src="images/leaflet_interactive.html" 
-    width="100%" 
-    height="450" 
-    frameborder="0" 
-    style="border: none;">
-</iframe
+```{raw} html
+:file: images/leaflet_interactive.html
 ```
