@@ -39,6 +39,7 @@ library(tidyverse)
 library(sf)
 library(tmap)    # for static and interactive maps
 library(leaflet) # for interactive maps
+library(mapview) # for saving maps
 
 theme_set(theme_classic())
 ```
@@ -353,6 +354,10 @@ In tmap all you have to do is run tmap_mode("view") and it will create an intera
 Also in this chunk we see how to add a basemap to a tmap object, using tm_basemap.
 
 ```{r}
+# define where to save static and interactive maps
+usa_tmap_interactive_fp <- "./images/tmap.html"
+usa_tmap_static_fp <- "./images/tmap.png"
+
 tmap_mode("view")
 
 usa <- tm_shape(watersheds_info) +
@@ -362,38 +367,39 @@ usa <- tm_shape(watersheds_info) +
   tm_borders() +
   tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
 
-usa_tmap_interactive <- usa + tm_basemap(server = "OpenTopoMap")
+usa + tm_basemap(server = "OpenTopoMap") |> 
+  tmap_leaflet() |>
+  mapshot(url=usa_tmap_interactive_fp,file=usa_tmap_static_fp)
 
-# Save the interactive map to a temporary HTML file
-usa_tmap_interactive_fp <- "images/tmap_interactive.html"
-tmap_save(usa_tmap_interactive, filename = usa_tmap_interactive_fp)
 ```
 
-```{figure} https://github.com/abnerbog/12-Intro_Geospatial_Vector/blob/master/images/tmap_interactive.html
-:name: tmap-fig
-:align: center
-```
+::: {#fig-tmap-plot .captioned-figure}
+<img src="./images/tmap_static.png" alt="Tmap plot" width="1000">
+
+Screenshot of Tmap plot. View the **[interactive map here](./images/leaflet.html)**. 
+:::
+
 
 ### Leaflet
 
 Leaflet is another way to make interactive maps. It's syntax is very different, as you can see below. But depending on what functionality you need, it could be a better choice.
 
 ```{r}
+# define where to save static and interactive maps
+leaflet_interactive_fp <- "./images/leaflet.html"
+leaflet_static_fp <- "./images/leaflet.png"
+
 # Assign the leaflet plot to a variable
-leaflet_map <- leaflet(watersheds_info) |>
+leaflet(watersheds_info) |>
   addTiles() |>
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
-    fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
-
-# Save the interactive map to a temporary HTML file using htmlwidgets
-library(htmlwidgets)
-leaflet_map_fp <- "images/leaflet_interactive.html"
-htmlwidgets::saveWidget(leaflet_map, file = leaflet_map_fp, selfcontained = TRUE)
-
+    fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean)) |>
+  mapshot(url=leaflet_interactive_fp,file=leaflet_static_fp)
 ```
 
-```{figure} https://github.com/abnerbog/12-Intro_Geospatial_Vector/blob/master/images/leaflet_interactive.html
-:name: leaflet-fig
-:align: center
-```
+::: {#fig-leaflet-plot .captioned-figure}
+<img src="./images/leaflet.png" alt="Leaflet plot" width="1000">
+
+Screenshot of Leaflet plot. View the **[interactive map here](./images/leaflet.html)**. 
+:::
