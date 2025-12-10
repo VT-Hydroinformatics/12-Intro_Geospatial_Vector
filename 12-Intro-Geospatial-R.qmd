@@ -92,17 +92,26 @@ Once that is all done, we will look at the watershed data to see what is availab
 ```{r}
 #make sure tmap is in static map mode
 tmap_mode("plot")
+```
 
+```{r}
 #the CAMELS shapefile throws an error about having 
 #invalid polygons, this line allows it to plot
 tm_check_fix()
 
 #Read shapefiles
 watersheds <- st_read("small_ws/smallerws.shp")
+```
+
+```{r}
 states <- st_read("cb_2018_us_state_20m/cb_2018_us_state_20m.shp")
+```
 
+```{r}
 gageinfo <- read_csv("gauge information.csv")
+```
 
+```{r}
 #look at the watersheds shapefile data
 print(head(watersheds))
 ```
