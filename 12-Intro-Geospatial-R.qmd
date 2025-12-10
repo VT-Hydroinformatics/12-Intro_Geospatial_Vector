@@ -362,7 +362,19 @@ usa <- tm_shape(watersheds_info) +
   tm_borders() +
   tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
 
-usa + tm_basemap(server = "OpenTopoMap")
+usa_tmap_interactive <- usa + tm_basemap(server = "OpenTopoMap")
+
+# Save the interactive map to a temporary HTML file
+usa_tmap_interactive_fp <- "images/tmap_interactive.html"
+tmap_save(usa_tmap_interactive, filename = usa_tmap_interactive_fp)
+
+# Display the saved HTML file content in the notebook output
+# This method reads the HTML file and prints its content, allowing the notebook
+# environment to render the interactive map.
+library(htmltools)
+includeHTML(usa_tmap_interactive_fp)
+
+
 ```
 
 ### Leaflet
@@ -370,9 +382,20 @@ usa + tm_basemap(server = "OpenTopoMap")
 Leaflet is another way to make interactive maps. It's syntax is very different, as you can see below. But depending on what functionality you need, it could be a better choice.
 
 ```{r}
-leaflet(watersheds_info) |> 
+# Assign the leaflet plot to a variable
+leaflet_map <- leaflet(watersheds_info) |>
   addTiles() |>
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
+
+# Save the interactive map to a temporary HTML file using htmlwidgets
+library(htmlwidgets)
+leaflet_map_fp <- "images/leaflet_interactive.html"
+htmlwidgets::saveWidget(leaflet_map, file = leaflet_map_fp, selfcontained = TRUE)
+
+# Display the saved HTML file content in the notebook output
+# This method reads the HTML file and prints its content, allowing the notebook
+# environment to render the interactive map.
+includeHTML(leaflet_map_fp)
 ```
