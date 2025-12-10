@@ -54,13 +54,13 @@ Check out the images below for two examples of the same data represented as rast
 Vector: Points, lines, polygons, boundaries are crisp regardless of scale Raster: Grid of same sized cells, vales in cells, cell size = resolution (smaller cells, higher resolution)
 
 ::: {#fig-raster-vector1 .captioned-figure}
-<img src="./images/raster%20vector1.png" alt="Raster vs. Vector 1" width="1000">
+<img src="./images/raster-vector1.png" alt="Raster vs. Vector 1" width="1000">
 
 Raster vs. Vector 1
 :::
 
 ::: {#fig-raster-vector2 .captioned-figure}
-<img src="./images/raster%20vector2.png" alt="Raster vs. Vector 2" width="1000">
+<img src="./images/raster-vector2.png" alt="Raster vs. Vector 2" width="1000">
 
 Raster vs. Vector 2
 :::
