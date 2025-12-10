@@ -369,8 +369,9 @@ usa_tmap_interactive_fp <- "images/tmap_interactive.html"
 tmap_save(usa_tmap_interactive, filename = usa_tmap_interactive_fp)
 ```
 
-```{raw} html
-:file: images/tmap_interactive.html
+```{figure} https://github.com/abnerbog/12-Intro_Geospatial_Vector/blob/master/images/tmap_interactive.html
+:name: tmap-fig
+:align: center
 ```
 
 ### Leaflet
@@ -392,6 +393,7 @@ htmlwidgets::saveWidget(leaflet_map, file = leaflet_map_fp, selfcontained = TRUE
 
 ```
 
-```{raw} html
-:file: images/leaflet_interactive.html
+```{figure} https://github.com/abnerbog/12-Intro_Geospatial_Vector/blob/master/images/leaflet_interactive.html
+:name: leaflet-fig
+:align: center
 ```
