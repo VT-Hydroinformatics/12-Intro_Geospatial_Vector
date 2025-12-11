@@ -37,9 +37,11 @@ A. Newman; K. Sampson; M. P. Clark; A. Bock; R. J. Viger; D. Blodgett, 2014. A l
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(sf)
-library(tmap)    # for static and interactive maps
-library(leaflet) # for interactive maps
-library(mapview) # for saving maps
+library(tmap)      # for static and interactive maps
+library(leaflet)   # for interactive maps
+library(webshot2)  # for saving maps
+library(htmltools) # for saving maps
+
 
 theme_set(theme_classic())
 ```
@@ -355,8 +357,8 @@ Also in this chunk we see how to add a basemap to a tmap object, using tm_basema
 
 ```{r}
 # define where to save static and interactive maps
-usa_tmap_interactive_fp <- "./images/tmap.html"
-usa_tmap_static_fp <- "./images/tmap.png"
+tmap_plot_interactive_fp <- "./images/tmap_plot.html"
+tmap_plot_static_fp <- "./images/tmap_plot.png"
 
 tmap_mode("view")
 
@@ -367,16 +369,17 @@ usa <- tm_shape(watersheds_info) +
   tm_borders() +
   tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
 
-usa + tm_basemap(server = "OpenTopoMap") |> 
-  tmap_leaflet() |>
-  mapshot(url=usa_tmap_interactive_fp,file=usa_tmap_static_fp)
+tmap_plot <- usa + tm_basemap(server = "OpenTopoMap")
 
+tmap_plot |> tmap_save(tmap_plot_interactive_fp)
+webshot(url = tmap_plot_interactive_fp,file = tmap_plot_static_fp,cliprect = "viewport")
 ```
 
-::: {#fig-tmap-plot .captioned-figure}
-<img src="./images/tmap.png" alt="Tmap plot" width="1000">
 
-Screenshot of Tmap plot. View the **[interactive map here](./images/tmap.html)**. 
+::: {#fig-tmap-plot .captioned-figure}
+<img src="./images/tmap_plot.png" alt="Tmap plot" width="1000">
+
+Screenshot of Tmap plot. View the **[interactive map here](./images/tmap_plot.html)**. 
 :::
 
 
@@ -386,20 +389,22 @@ Leaflet is another way to make interactive maps. It's syntax is very different, 
 
 ```{r}
 # define where to save static and interactive maps
-leaflet_interactive_fp <- "./images/leaflet.html"
-leaflet_static_fp <- "./images/leaflet.png"
+leaflet_plot_interactive_fp <- "./images/leaflet_plot.html"
+leaflet_plot_static_fp <- "./images/leaflet_plot.png"
 
 # Assign the leaflet plot to a variable
-leaflet(watersheds_info) |>
+leaflet_plot <- leaflet(watersheds_info) |>
   addTiles() |>
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
-    fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean)) |>
-  mapshot(url=leaflet_interactive_fp,file=leaflet_static_fp)
+    fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
+
+leaflet_plot |> htmlwidgets::saveWidget(leaflet_plot_interactive_fp)
+webshot(url = leaflet_plot_interactive_fp,file = leaflet_plot_static_fp,cliprect = "viewport")
 ```
 
 ::: {#fig-leaflet-plot .captioned-figure}
-<img src="./images/leaflet.png" alt="Leaflet plot" width="1000">
+<img src="./images/leaflet_plot.png" alt="Leaflet plot" width="1000">
 
-Screenshot of Leaflet plot. View the **[interactive map here](./images/leaflet.html)**. 
+Screenshot of Leaflet plot. View the **[interactive map here](./images/leaflet_plot.html)**. 
 :::
