@@ -1,11 +1,9 @@
 ---
 title: "Chapter 12: Intro Geospatial - Vector"
 date: today
-github: https://github.com/VT-Hydroinformatics/12-Intro_Geospatial_Vector
 author:
   - name: JP Gannon
     orcid: 0000-0002-4595-3214
-    github: jpgannon
     url: https://jpgannon.github.io/
     affiliation: 
       - name: Virginia Tech
@@ -14,9 +12,10 @@ format:
   html: 
     self-contained: true
   ipynb:
-      nb-frontmatter: true
-jupyter: 
-  kernel: ir
+    nb-frontmatter: true
+    jupyter:
+      kernel: ir
+      ipynb-shell-interactivity: all
 execute: 
   enabled: true
 ---
@@ -56,23 +55,16 @@ Check out the images below for two examples of the same data represented as rast
 
 Vector: Points, lines, polygons, boundaries are crisp regardless of scale Raster: Grid of same sized cells, vales in cells, cell size = resolution (smaller cells, higher resolution)
 
-::: {#fig-raster-vector1 .captioned-figure}
-<img src="./images/raster-vector1.png" alt="Raster vs. Vector 1" width="1000">
+![Raster vs. Vector 1](images/raster vector1.png "Raster vs. Vector 1")
 
-Raster vs. Vector 1
-:::
-
-::: {#fig-raster-vector2 .captioned-figure}
-<img src="./images/raster-vector2.png" alt="Raster vs. Vector 2" width="1000">
-
-Raster vs. Vector 2
-:::
+![Raster vs. Vector 2](images/raster vector2.png "Raster vs. Vector 2")
 
 **Questions from these two images:**
 
 *What are the advantages/disadvantages of raster/vector for each?* Which is best to show on a map for each?  \*For elevation, which would be better for calculating slope? 
 
 So, today we are sticking to vector data, but then we will be deal primarily with raster elevation data.
+
 
 ## Intro to tmap
 
@@ -116,7 +108,7 @@ gageinfo <- read_csv("gauge information.csv")
 
 ```{r}
 #look at the watersheds shapefile data
-print(head(watersheds))
+head(watersheds)
 ```
 
 Let's make a map showing the watersheds data. Each watershed has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the watersheds filled in with a color.
@@ -242,7 +234,7 @@ watersheds <- watersheds |>
 watersheds_info <- watersheds |>
   left_join(gageinfo, by = "GAGE_ID")
 
-print(head(watersheds_info))
+head(watersheds_info)
 ```
 
 And now we can plot this formerly non-spatial data on our map.
@@ -292,7 +284,7 @@ va_watersheds <- va_watersheds |>
   mutate(PerimeterNum = as.numeric(Perimeter),
          Area_Perimeter = AREA / PerimeterNum) 
 
-print(head(va_watersheds))
+head(va_watersheds)
 
 ```
 
@@ -356,10 +348,6 @@ In tmap all you have to do is run tmap_mode("view") and it will create an intera
 Also in this chunk we see how to add a basemap to a tmap object, using tm_basemap.
 
 ```{r}
-# define where to save static and interactive maps
-tmap_plot_interactive_fp <- "./images/tmap_plot.html"
-tmap_plot_static_fp <- "./images/tmap_plot.png"
-
 tmap_mode("view")
 
 usa <- tm_shape(watersheds_info) +
@@ -369,18 +357,8 @@ usa <- tm_shape(watersheds_info) +
   tm_borders() +
   tm_layout(title = "CAMELS Watersheds", title.position = c("right", "TOP"))
 
-tmap_plot <- usa + tm_basemap(server = "OpenTopoMap")
-
-tmap_plot |> tmap_save(tmap_plot_interactive_fp)
-webshot(url = tmap_plot_interactive_fp,file = tmap_plot_static_fp,cliprect = "viewport")
+usa + tm_basemap(server = "OpenTopoMap")
 ```
-
-
-::: {#fig-tmap-plot .captioned-figure}
-<img src="./images/tmap_plot.png" alt="Tmap plot" width="1000">
-
-Screenshot of Tmap plot. View the **[interactive map here](./images/tmap_plot.html)**. 
-:::
 
 
 ### Leaflet
@@ -388,23 +366,9 @@ Screenshot of Tmap plot. View the **[interactive map here](./images/tmap_plot.ht
 Leaflet is another way to make interactive maps. It's syntax is very different, as you can see below. But depending on what functionality you need, it could be a better choice.
 
 ```{r}
-# define where to save static and interactive maps
-leaflet_plot_interactive_fp <- "./images/leaflet_plot.html"
-leaflet_plot_static_fp <- "./images/leaflet_plot.png"
-
-# Assign the leaflet plot to a variable
-leaflet_plot <- leaflet(watersheds_info) |>
+leaflet(watersheds_info) |> 
   addTiles() |>
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
-
-leaflet_plot |> htmlwidgets::saveWidget(leaflet_plot_interactive_fp)
-webshot(url = leaflet_plot_interactive_fp,file = leaflet_plot_static_fp,cliprect = "viewport")
 ```
-
-::: {#fig-leaflet-plot .captioned-figure}
-<img src="./images/leaflet_plot.png" alt="Leaflet plot" width="1000">
-
-Screenshot of Leaflet plot. View the **[interactive map here](./images/leaflet_plot.html)**. 
-:::
