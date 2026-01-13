@@ -21,7 +21,7 @@ execute:
 ---
 
 
-# Geospatial data in R - Vector {#rgeospatial}
+# Geospatial data in R - Vector
 
 The following activity is available as a template github repository at the following link: <https://github.com/VT-Hydroinformatics/12-Intro_Geospatial_Vector>
 
@@ -55,9 +55,11 @@ Check out the images below for two examples of the same data represented as rast
 
 Vector: Points, lines, polygons, boundaries are crisp regardless of scale Raster: Grid of same sized cells, vales in cells, cell size = resolution (smaller cells, higher resolution)
 
-![](images/raster vector1.png "Raster vs. Vector 1")
+![Raster vs. Vector 1](images/raster vector1.png "Raster vs. Vector 1")\
+_Raster vs. Vector 1_
 
-![](images/raster vector2.png "Raster vs. Vector 2")
+![Raster vs. Vector 2](images/raster vector2.png "Raster vs. Vector 2")\
+_Raster vs. Vector 2_
 
 **Questions from these two images:**
 
@@ -359,7 +361,7 @@ usa <- tm_shape(watersheds_info) +
 
 usa + tm_basemap(server = "OpenTopoMap")
 ```
-
+[View the interactive map here](images/tmap_plot.html)
 
 ### Leaflet
 
@@ -372,3 +374,4 @@ leaflet(watersheds_info) |>
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
 ```
+[View the interactive map here](images/leaflet_plot.html)
