@@ -361,7 +361,7 @@ usa <- tm_shape(watersheds_info) +
 
 usa + tm_basemap(server = "OpenTopoMap")
 ```
-[View the interactive map here](images/tmap_plot.html)
+**[View the interactive map here](images/tmap_plot.html)**
 
 ### Leaflet
 
@@ -374,4 +374,4 @@ leaflet(watersheds_info) |>
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
 ```
-[View the interactive map here](images/leaflet_plot.html)
+**[View the interactive map here](images/leaflet_plot.html)**
