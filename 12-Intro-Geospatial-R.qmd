@@ -1,12 +1,27 @@
 ---
-title: "12 - Intro Geospatial - Vector"
+title: "Chapter 12: Intro Geospatial - Vector"
+date: today
+author:
+  - name: JP Gannon
+    orcid: 0000-0002-4595-3214
+    url: https://jpgannon.github.io/
+    affiliation: 
+      - name: Virginia Tech
+        url: https://www.vt.edu/
 format:
   html: 
     self-contained: true
+  ipynb:
+    nb-frontmatter: true
+    jupyter:
+      kernel: ir
+      ipynb-shell-interactivity: all
+execute: 
+  enabled: true
 ---
 
 
-# Geospatial data in R - Vector {#rgeospatial}
+# Geospatial data in R - Vector
 
 The following activity is available as a template github repository at the following link: <https://github.com/VT-Hydroinformatics/12-Intro_Geospatial_Vector>
 
@@ -21,8 +36,11 @@ A. Newman; K. Sampson; M. P. Clark; A. Bock; R. J. Viger; D. Blodgett, 2014. A l
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(sf)
-library(tmap)    # for static and interactive maps
-library(leaflet) # for interactive maps
+library(tmap)      # for static and interactive maps
+library(leaflet)   # for interactive maps
+library(webshot2)  # for saving maps
+library(htmltools) # for saving maps
+
 
 theme_set(theme_classic())
 ```
@@ -37,15 +55,20 @@ Check out the images below for two examples of the same data represented as rast
 
 Vector: Points, lines, polygons, boundaries are crisp regardless of scale Raster: Grid of same sized cells, vales in cells, cell size = resolution (smaller cells, higher resolution)
 
-![Raster vs. Vector 1](images/raster%20vector1.png "Raster vs. Vector 1")
+![](images/raster vector1.png "Raster vs. Vector 1")
 
-![Raster vs. Vector 2](images/raster%20vector2.png "Raster vs. Vector 2")
+_Raster vs. Vector 1_
+
+![](images/raster vector2.png "Raster vs. Vector 2")
+
+_Raster vs. Vector 2_
 
 **Questions from these two images:**
 
 *What are the advantages/disadvantages of raster/vector for each?* Which is best to show on a map for each?  \*For elevation, which would be better for calculating slope? 
 
 So, today we are sticking to vector data, but then we will be deal primarily with raster elevation data.
+
 
 ## Intro to tmap
 
@@ -68,17 +91,26 @@ Once that is all done, we will look at the watershed data to see what is availab
 ```{r}
 #make sure tmap is in static map mode
 tmap_mode("plot")
+```
 
+```{r}
 #the CAMELS shapefile throws an error about having 
 #invalid polygons, this line allows it to plot
-tmap_options(check.and.fix = TRUE)
+tm_check_fix()
 
 #Read shapefiles
 watersheds <- st_read("small_ws/smallerws.shp")
+```
+
+```{r}
 states <- st_read("cb_2018_us_state_20m/cb_2018_us_state_20m.shp")
+```
 
+```{r}
 gageinfo <- read_csv("gauge information.csv")
+```
 
+```{r}
 #look at the watersheds shapefile data
 head(watersheds)
 ```
@@ -331,6 +363,7 @@ usa <- tm_shape(watersheds_info) +
 
 usa + tm_basemap(server = "OpenTopoMap")
 ```
+**[View the interactive map here](images/tmap_plot.html)**
 
 ### Leaflet
 
@@ -343,3 +376,4 @@ leaflet(watersheds_info) |>
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~colorQuantile("YlOrRd", elev_mean)(elev_mean))
 ```
+**[View the interactive map here](images/leaflet_plot.html)**
