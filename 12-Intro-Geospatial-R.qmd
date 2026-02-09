@@ -9,15 +9,23 @@ author:
       - name: Virginia Tech
         url: https://www.vt.edu/
 format:
-  html: 
+  html:
     self-contained: true
   ipynb:
     nb-frontmatter: true
-    jupyter:
-      kernel: ir
-      ipynb-shell-interactivity: all
-execute: 
+execute:
   enabled: true
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.19.1
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
 ---
 
 
@@ -112,7 +120,7 @@ gageinfo <- read_csv("gauge information.csv")
 
 ```{r}
 #look at the watersheds shapefile data
-head(watersheds)
+print(head(watersheds))
 ```
 
 Let's make a map showing the watersheds data. Each watershed has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the watersheds filled in with a color.
@@ -238,7 +246,7 @@ watersheds <- watersheds |>
 watersheds_info <- watersheds |>
   left_join(gageinfo, by = "GAGE_ID")
 
-head(watersheds_info)
+print(head(watersheds_info))
 ```
 
 And now we can plot this formerly non-spatial data on our map.
@@ -288,7 +296,7 @@ va_watersheds <- va_watersheds |>
   mutate(PerimeterNum = as.numeric(Perimeter),
          Area_Perimeter = AREA / PerimeterNum) 
 
-head(va_watersheds)
+print(head(va_watersheds))
 
 ```
 
