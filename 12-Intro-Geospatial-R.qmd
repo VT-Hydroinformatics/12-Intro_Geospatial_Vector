@@ -1,22 +1,9 @@
 ---
 title: "Chapter 12: Intro Geospatial - Vector"
 date: today
-author:
-  - name: JP Gannon
-    orcid: 0000-0002-4595-3214
-    url: https://jpgannon.github.io/
-    affiliation: 
-      - name: Virginia Tech
-        url: https://www.vt.edu/
-format:
-  html: 
-    self-contained: true
-  ipynb:
-    nb-frontmatter: true
-    jupyter:
-      kernel: ir
-      ipynb-shell-interactivity: all
-execute: 
+author: JP Gannon
+format: gfm
+execute:
   enabled: true
 ---
 
@@ -112,7 +99,7 @@ gageinfo <- read_csv("gauge information.csv")
 
 ```{r}
 #look at the watersheds shapefile data
-head(watersheds)
+print(head(watersheds))
 ```
 
 Let's make a map showing the watersheds data. Each watershed has coordinates to draw it in the dataset, and tmap knows how to deal with that. It uses the same format as ggplot, but instead of ggplot() you will use tm_shape(). Then the geoms are prefixed tm\_, so we will use tm_fill to show a map of the watersheds filled in with a color.
@@ -238,7 +225,7 @@ watersheds <- watersheds |>
 watersheds_info <- watersheds |>
   left_join(gageinfo, by = "GAGE_ID")
 
-head(watersheds_info)
+print(head(watersheds_info))
 ```
 
 And now we can plot this formerly non-spatial data on our map.
@@ -288,7 +275,7 @@ va_watersheds <- va_watersheds |>
   mutate(PerimeterNum = as.numeric(Perimeter),
          Area_Perimeter = AREA / PerimeterNum) 
 
-head(va_watersheds)
+print(head(va_watersheds))
 
 ```
 
