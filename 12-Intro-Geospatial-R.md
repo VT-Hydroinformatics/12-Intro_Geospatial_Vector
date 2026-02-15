@@ -1,6 +1,6 @@
 # Chapter 12: Intro Geospatial - Vector
 JP Gannon
-2026-02-12
+2026-02-15
 
 # Geospatial data in R - Vector
 
@@ -49,11 +49,11 @@ Vector: Points, lines, polygons, boundaries are crisp regardless of
 scale Raster: Grid of same sized cells, vales in cells, cell size =
 resolution (smaller cells, higher resolution)
 
-![](images/raster%20vector1.png "Raster vs. Vector 1")
+![](images/rastervector1.png "Raster vs. Vector 1")
 
 *Raster vs. Vector 1*
 
-![](images/raster%20vector2.png "Raster vs. Vector 2")
+![](images/rastervector2.png "Raster vs. Vector 2")
 
 *Raster vs. Vector 2*
 
@@ -105,8 +105,7 @@ you would with a regular object?
 tmap_mode("plot")
 ```
 
-    ℹ tmap modes "plot" - "view"
-    ℹ toggle with `tmap::ttm()`
+    ℹ tmap mode set to "plot".
 
 ``` r
 #the CAMELS shapefile throws an error about having 
@@ -122,7 +121,7 @@ watersheds <- st_read("small_ws/smallerws.shp")
 ```
 
     Reading layer `smallerws' from data source 
-      `C:\Users\AbnerBogan\Code\12-Intro_Geospatial_Vector\small_ws\smallerws.shp' 
+      `/Users/jpgannon/Library/CloudStorage/GoogleDrive-jpgannon@vt.edu/My Drive/CLASSES/SPRING Hydroinformatics/12-Intro_Geospatial_Vector/small_ws/smallerws.shp' 
       using driver `ESRI Shapefile'
     Simple feature collection with 671 features and 9 fields
     Geometry type: MULTIPOLYGON
@@ -135,7 +134,7 @@ states <- st_read("cb_2018_us_state_20m/cb_2018_us_state_20m.shp")
 ```
 
     Reading layer `cb_2018_us_state_20m' from data source 
-      `C:\Users\AbnerBogan\Code\12-Intro_Geospatial_Vector\cb_2018_us_state_20m\cb_2018_us_state_20m.shp' 
+      `/Users/jpgannon/Library/CloudStorage/GoogleDrive-jpgannon@vt.edu/My Drive/CLASSES/SPRING Hydroinformatics/12-Intro_Geospatial_Vector/cb_2018_us_state_20m/cb_2018_us_state_20m.shp' 
       using driver `ESRI Shapefile'
     Simple feature collection with 52 features and 9 fields
     Geometry type: MULTIPOLYGON
@@ -617,7 +616,7 @@ tm_basemap.
 tmap_mode("view")
 ```
 
-    ℹ tmap modes "plot" - "view"
+    ℹ tmap mode set to "view".
 
 ``` r
 usa <- tm_shape(watersheds_info) +
@@ -635,6 +634,10 @@ usa <- tm_shape(watersheds_info) +
 ``` r
 usa + tm_basemap(server = "OpenTopoMap")
 ```
+
+    Registered S3 method overwritten by 'jsonify':
+      method     from    
+      print.json jsonlite
 
 ![](12-Intro-Geospatial-R_files/figure-commonmark/unnamed-chunk-21-1.png)
 
